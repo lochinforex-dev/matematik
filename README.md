@@ -1,0 +1,2 @@
+# matematik
+matematiklar uchun
