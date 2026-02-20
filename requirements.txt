@@ -1,3 +1,7 @@
-pyTelegramBotAPI
-google-generativeai
-flask
+pdf2docx
+docx2pdf
+Pillow
+moviepy
+pandas
+openpyxl
+gunicorn  # Agar web-service bo'lsa
