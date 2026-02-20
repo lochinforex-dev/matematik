@@ -1,2 +1,1 @@
-# matematik
-matematiklar uchun
+4
