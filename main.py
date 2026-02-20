@@ -1,52 +1,55 @@
-import telebot
-import google.generativeai as genai
-from flask import Flask
-from threading import Thread
 import os
+from pdf2docx import Converter
+from docx2pdf import convert as docx_to_pdf
+from PIL import Image
+from moviepy.editor import VideoFileClip
+import pandas as pd
 
-# 1. KALITLAR
-BOT_TOKEN = "8570831864:AAEY860HTdudiMpkG9-SZ0NM0HxNJI5cquc"
-API_KEY = "AIzaSyBgpXPCLXpwTIPTqoHznkjrnmr4f9C3tq8"
+class UniversalConverter:
+    # 1. PDF -> WORD
+    @staticmethod
+    def pdf_to_word(pdf_path, docx_path):
+        cv = Converter(pdf_path)
+        cv.convert(docx_path)
+        cv.close()
+        print(f"✅ Word fayl tayyor: {docx_path}")
 
-# 2. SOZLAMALAR
-bot = telebot.TeleBot(BOT_TOKEN)
-genai.configure(api_key=API_KEY)
+    # 2. WORD -> PDF
+    @staticmethod
+    def word_to_pdf(docx_path, pdf_path):
+        docx_to_pdf(docx_path, pdf_path)
+        print(f"✅ PDF fayl tayyor: {pdf_path}")
 
-# MODEL NOMINI YANGILADIK (Xatolikni to'g'rilaydi)
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+    # 3. RASM FORMATINI O'ZGARTIRISH (masalan PNG -> JPG)
+    @staticmethod
+    def convert_image(input_img, output_img, format="JPEG"):
+        img = Image.open(input_img)
+        if format == "JPEG":
+            img = img.convert("RGB")
+        img.save(output_img, format=format)
+        print(f"✅ Rasm saqlandi: {output_img}")
 
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "Assalomu alaykum! Men Gemini sun'iy intellekt botiman. Savolingizni yozing.")
+    # 4. VIDEO -> AUDIO (MP4 -> MP3)
+    @staticmethod
+    def video_to_audio(video_path, audio_path):
+        video = VideoFileClip(video_path)
+        video.audio.write_audiofile(audio_path)
+        print(f"✅ Ovoz fayli ajratib olindi: {audio_path}")
 
-@bot.message_handler(func=lambda m: True)
-def chat(message):
-    try:
-        # Sun'iy intellektdan javob olish
-        response = model.generate_content(message.text)
-        if response.text:
-            bot.reply_to(message, response.text)
-        else:
-            bot.reply_to(message, "Kechirasiz, javob bera olmadim.")
-    except Exception as e:
-        print(f"Xatolik: {e}")
-        bot.reply_to(message, "Hozircha javob bera olmayman, birozdan so'ng qayta urinib ko'ring.")
+    # 5. EXCEL -> CSV
+    @staticmethod
+    def excel_to_csv(excel_path, csv_path):
+        df = pd.read_excel(excel_path)
+        df.to_csv(csv_path, index=False)
+        print(f"✅ CSV fayl tayyor: {csv_path}")
 
-# Render serveri botni o'chirib qo'ymasligi uchun Flask server
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "Bot muvaffaqiyatli ishlamoqda!"
-
-def run():
-    app.run(host='0.0.0.0', port=8080)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-
+# --- ISHLATIB KO'RISH ---
 if __name__ == "__main__":
-    keep_alive()
-    print("Bot yoqildi...")
-    bot.infinity_polling()
+    conv = UniversalConverter()
+    
+    # Misollar (fayl nomlarini o'zingiznikiga almashtiring):
+    # conv.pdf_to_word("test.pdf", "test.docx")
+    # conv.word_to_pdf("test.docx", "test.pdf")
+    # conv.convert_image("logo.png", "logo.jpg", "JPEG")
+    # conv.video_to_audio("kino.mp4", "music.mp3")
+    # conv.excel_to_csv("hisobot.xlsx", "hisobot.csv")
