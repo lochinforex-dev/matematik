@@ -4,4 +4,5 @@ Pillow
 moviepy
 pandas
 openpyxl
-gunicorn  # Agar web-service bo'lsa
+flask  # Agar veb-ilova bo'lsa
+gunicorn # Renderda ishga tushirish uchun shart
